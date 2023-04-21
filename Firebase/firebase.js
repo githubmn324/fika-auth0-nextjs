@@ -3,12 +3,7 @@ import { getAuth, signInWithCustomToken, signOut } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBJSIFyuqKWF06rjGYwgERXxaaz_fxI2_E",
-    authDomain: "kaigofika-poc01.firebaseapp.com",
-    projectId: "kaigofika-poc01",
-    storageBucket: "kaigofika-poc01.appspot.com",
-    messagingSenderId: "901508578456",
-    appId: "1:901508578456:web:68a16396d5cbf98b73e4ed"
+    // Your web app's Firebase configuration
 };
 
 const app = initializeApp(firebaseConfig);
