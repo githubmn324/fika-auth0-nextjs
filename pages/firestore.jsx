@@ -7,7 +7,9 @@ import ErrorMessage from '../components/ErrorMessage';
 import Highlight from '../components/Highlight';
 import { Button } from 'reactstrap';
 
+// firebase
 import { db, signInFirebase, signOutFirebase } from '../Firebase/firebase'
+// firestore
 import { collection, getDocs } from "firebase/firestore";
 
 function Firestore() {
@@ -16,11 +18,10 @@ function Firestore() {
 
   async function getRestaurants() {
     console.log("### getResturants");
-    signInFirebase();
+    await signInFirebase();
     const restaurantsCol = collection(db, 'restaurants');
     const restaurantsSnapshot = await getDocs(restaurantsCol);
     const restaurantsList = restaurantsSnapshot.docs.map(doc => doc.data());
-
     console.log("### restaurantsList");
     console.dir(restaurantsList, { depth: null }) 
 

@@ -20,6 +20,9 @@ import AnchorLink from './AnchorLink';
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isLoading } = useUser();
+  console.log({
+    user: user
+  })
   const toggle = () => setIsOpen(!isOpen);
 
   return (
@@ -57,6 +60,11 @@ const NavBar = () => {
                       Firestore
                     </PageLink>
                   </NavItem>
+                  <NavItem>
+                    <PageLink href="/cloudstorage" className="nav-link" testId="navbar-cloudstorage">
+                      Cloud Storage
+                    </PageLink>
+                  </NavItem>
                 </>
               )}
             </Nav>
@@ -68,7 +76,7 @@ const NavBar = () => {
                     className="btn btn-primary btn-margin"
                     tabIndex={0}
                     testId="navbar-login-desktop">
-                    Log in
+                    Log in 1
                   </AnchorLink>
                 </NavItem>
               )}
@@ -110,7 +118,7 @@ const NavBar = () => {
                   className="btn btn-primary btn-block"
                   tabIndex={0}
                   testId="navbar-login-mobile">
-                  Log in
+                  Log in 2
                 </AnchorLink>
               </Nav>
             )}

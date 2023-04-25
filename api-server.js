@@ -13,6 +13,12 @@ const baseUrl = process.env.AUTH0_BASE_URL;
 const issuerBaseUrl = process.env.AUTH0_ISSUER_BASE_URL;
 const audience = process.env.AUTH0_AUDIENCE;
 
+// ログ出力用
+const pino = require('pino');
+const expressPino = require('express-pino-logger');
+const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
+const expressLogger = expressPino({ logger });
+
 if (!baseUrl || !issuerBaseUrl) {
   throw new Error('Please make sure that the file .env.local is in place and populated');
 }
@@ -31,7 +37,7 @@ const checkJwt = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `${issuerBaseUrl}/.well-known/jwks.json`
+    jwksUri: `${issuerBaseUrl}/.well-known/jwks.json`,
   }),
   audience: audience,
   issuer: `${issuerBaseUrl}/`,
@@ -48,30 +54,42 @@ const firebaseAdmin = require('firebase-admin');
 const serviceAccount = require('./firebase/firebase-key');
 
 firebaseAdmin.initializeApp({
-    credential: firebaseAdmin.credential.cert(serviceAccount),
-    databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`
+  credential: firebaseAdmin.credential.cert(serviceAccount),
+  databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`
 });
 
 app.get('/api/firebase', checkJwt, async (req, res) => {
-  console.log("### /api/firebase");
-    // const {sub: uid} = req.user;
-    const {sub: uid} = req.auth;
-    console.log("### req.auth");
-    console.dir(req.auth, { depth: null })
-    console.log(`### req.auth: ${uid}`);
+  console.log({
+    method: "### /api/firebase",
+  });
+  console.log({
+    req: req
+  });
+  console.log({
+    res: res
+  });
+  // const {sub: uid} = req.user;
+  const {sub: uid} = req.auth;
+  console.log("### req.auth");
+  console.dir(req.auth, { depth: null })
+  console.log(`### req.auth: ${uid}`);
+  
+  const additionalClaims = {
+    org_id: req.auth.org_id,
+  };
 
-
-    try {
-        const firebaseToken = await firebaseAdmin.auth().createCustomToken(uid);
-        res.json({firebaseToken});
-        console.log("### firebaseToken");
-        console.log(firebaseToken);
-    } catch (err) {
-        res.status(500).send({
-        message: 'Firebase トークンを取得するときにエラーが発生しました。',
-        error: err
-        });
-    }
+  try {
+      const firebaseToken = await firebaseAdmin.auth().createCustomToken(uid, additionalClaims);
+      res.json({firebaseToken})
+      console.log({
+        firebaseToken: firebaseToken
+      });
+  } catch (err) {
+      res.status(500).send({
+      message: 'Firebase トークンを取得するときにエラーが発生しました。',
+      error: err
+      });
+  }
 });
 
 const server = app.listen(port, () => console.log(`API Server listening on port ${port}`));

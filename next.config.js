@@ -1,3 +1,7 @@
 module.exports = {
-  poweredByHeader: false
+  poweredByHeader: false,
+  // webpack: (config) => {
+  //   config.resolve.fallback = { fs: false };
+  //   return config;
+  // },
 };
