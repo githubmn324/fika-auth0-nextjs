@@ -2,20 +2,19 @@ import React, { useState } from 'react';
 import { Row, Col } from 'reactstrap';
 import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 
-import Loading from '../components/Loading';
-import ErrorMessage from '../components/ErrorMessage';
-import Highlight from '../components/Highlight';
+import Loading from 'components/Loading';
+import ErrorMessage from 'components/ErrorMessage';
+import Highlight from 'components/Highlight';
 import { Button } from 'reactstrap';
 
 // firebase
-import { cloudStorage, signInFirebase, signOutFirebase } from '../Firebase/firebase'
+import { cloudStorage, signInFirebase, signOutFirebase } from '../Firebase/firebase.js'
 // cloud storage
-import { ref, uploadBytes, getDownloadURL, updateMetadata, getMetadata, uploadString, deleteObject } from "firebase/storage";
+import { 
+  ref, uploadBytes, getDownloadURL, updateMetadata, getMetadata, uploadString, deleteObject 
+} from "firebase/storage";
 // The ID of your GCS bucket & file
 const bucketName = "kaigofika-poc01.appspot.com";
-// const fileName = 'test01.txt';
-// const imageName = "image_1.png";
-// const dogImageName = "dogimage01.png"
 
 function CloudStorage() {
   const { user, isLoading } = useUser();
@@ -31,7 +30,7 @@ function CloudStorage() {
   };
   const getTest01 = async(e) => {
     e.preventDefault();
-    await signInFirebase();
+    await signInFirebase(user.org_id);
     const gsReference = ref(
       cloudStorage,
       `gs://${bucketName}/${getImage}`
