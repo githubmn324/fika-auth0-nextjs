@@ -54,7 +54,9 @@ export async function getStaticProps(){
 //   }    
 // }
 
-export default function Index({api2data}) {
+export default function Index(
+  {api2data}
+) {
   
   // // get data from GCP API2 through machine to machine app
   // const [data, setData] = useState(null);
