@@ -65,6 +65,11 @@ const NavBar = () => {
                       Cloud Storage
                     </PageLink>
                   </NavItem>
+                  <NavItem>
+                    <PageLink href="/admin" className="nav-link" testId="navbar-cloudstorage">
+                      管理画面
+                    </PageLink>
+                  </NavItem>
                 </>
               )}
             </Nav>
@@ -76,7 +81,7 @@ const NavBar = () => {
                     className="btn btn-primary btn-margin"
                     tabIndex={0}
                     testId="navbar-login-desktop">
-                    Log in 1
+                    Log in
                   </AnchorLink>
                 </NavItem>
               )}
@@ -118,7 +123,7 @@ const NavBar = () => {
                   className="btn btn-primary btn-block"
                   tabIndex={0}
                   testId="navbar-login-mobile">
-                  Log in 2
+                  Log in
                 </AnchorLink>
               </Nav>
             )}

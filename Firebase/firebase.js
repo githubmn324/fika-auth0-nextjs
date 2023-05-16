@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, OAuthProvider, 
-    signInWithRedirect,　signInWithPopup, signInWithCredential, signInWithCustomToken,
+    signInWithRedirect, signInWithPopup, signInWithCredential, signInWithCustomToken,
     signOut 
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
