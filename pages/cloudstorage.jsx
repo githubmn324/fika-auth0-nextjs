@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { Button, useState } from 'react';
 import { Row, Col } from 'reactstrap';
 import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 
 import Loading from 'components/Loading';
 import ErrorMessage from 'components/ErrorMessage';
 import Highlight from 'components/Highlight';
-import { Button } from 'reactstrap';
 
 // firebase
 import { cloudStorage, signInFirebase, signOutFirebase } from '../Firebase/firebase.js'
@@ -15,6 +14,11 @@ import {
 } from "firebase/storage";
 // The ID of your GCS bucket & file
 const bucketName = "kaigofika-poc01.appspot.com";
+
+const style = {
+  padding:10,
+  margin: 10
+};
 
 function CloudStorage() {
   const { user, isLoading } = useUser();
@@ -123,27 +127,34 @@ function CloudStorage() {
           <Row data-testid="profile-json">
             <Highlight>{JSON.stringify(user, null, 2)}</Highlight>
           </Row>
-          <Row className="align-items-center profile-header mb-5 text-center text-md-left">
+        <hr />
+        <section>
+          <p>①以下で指定されたファイルをCloud storageへアップロードします。</p>
           <form onSubmit={handleSubmit}>
-              <input type="file" onChange={handleChange} />
-              <button className="button">Upload</button>
-            </form>
-          </Row>         
-          <Row className="align-items-center profile-header mb-5 text-center text-md-left">
-            <form onSubmit={getTest01}>
-              <input type="text" onChange={handleGetImageChange} />
-              <button className="button">取得</button>
-            </form>
-            <p>.</p>
-            <img src={image} alt="" />
-            <Highlight>{image}</Highlight>
-          </Row>
-          <Row>
-            <form onSubmit={createFolder}>
-              <input type="text" onChange={handleOrgIdChange} />
-              <button className="button">組織追加</button>
-            </form>
-          </Row>
+            <input type="file" onChange={handleChange} />
+            <button className="button">Cloud Storageへアップロード</button>
+          </form> 
+        </section>
+        <hr />
+        <section>
+          <p>②以下で指定されたCloud storageパスのデータを取得します。</p>
+          <form onSubmit={getTest01}>
+            <input type="text" onChange={handleGetImageChange} />
+            <button className="button">取得</button>
+            <small>※gs://{bucketName}/以降のパスを入力</small>
+          </form>
+          <br />
+          <Highlight className={style}>{image}</Highlight>
+        </section>
+        <hr />
+        <section>
+          <p>③以下で指定されたAuth0のOrganization IDを元に、Cloud Storageに新たに階層を追加します。</p>
+          <form onSubmit={createFolder}>
+            <input type="text" onChange={handleOrgIdChange} />
+            <button className="button">組織追加</button>
+          </form>
+        </section>
+          
         </>
       )}
     </>
