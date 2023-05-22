@@ -58,3 +58,7 @@
   color: black;
   font-weight: 550;
 }
+
+.message {
+  white-space: pre-line;
+}

@@ -12,6 +12,9 @@ import { cloudStorage, signInFirebase, signOutFirebase } from '../Firebase/fireb
 import { 
   ref, uploadBytes, getDownloadURL, updateMetadata, getMetadata, uploadString, deleteObject 
 } from "firebase/storage";
+
+import { createCloudStorageHierarchy } from "../lib/onboarding.js";
+
 // The ID of your GCS bucket & file
 const bucketName = "kaigofika-poc01.appspot.com";
 
@@ -34,7 +37,7 @@ function CloudStorage() {
   };
   const getTest01 = async(e) => {
     e.preventDefault();
-    await signInFirebase(user.org_id);
+    await signInFirebase();
     const gsReference = ref(
       cloudStorage,
       `gs://${bucketName}/${getImage}`
@@ -57,20 +60,11 @@ function CloudStorage() {
     console.log(e)
     setNewOrgId(e.target.value);
   }
-  const createFolder = async(e) => {
+  const handleCreateFolder = async(e) => {
     try {
       e.preventDefault();
-      await signInFirebase();
-      const initFile = '.initFile'
-      const initFileRef = ref(
-        cloudStorage,
-        `gs://${bucketName}/collection001/${newOrgId}/${initFile}`
-      );
-      await uploadString(initFileRef, "initial")
-      await deleteObject(initFileRef)
-      signOutFirebase();
+      await createCloudStorageHierarchy(newOrgId)
     }catch(error){
-      signOutFirebase();
       console.log(error);
     }
   }
@@ -149,7 +143,7 @@ function CloudStorage() {
         <hr />
         <section>
           <p>③以下で指定されたAuth0のOrganization IDを元に、Cloud Storageに新たに階層を追加します。</p>
-          <form onSubmit={createFolder}>
+          <form onSubmit={handleCreateFolder}>
             <input type="text" onChange={handleOrgIdChange} />
             <button className="button">組織追加</button>
           </form>

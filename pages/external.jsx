@@ -31,7 +31,7 @@ function External() {
 
     try {
       // API2のレスポンス
-      const response = await fetch('/api/m2m');  
+      const response = await fetch('/api/api2');  
       const data = await response.json();
       console.log({
           method: "call api2",

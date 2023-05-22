@@ -24,29 +24,29 @@ console.log({
 export const db = getFirestore(app);
 export const cloudStorage = getStorage(app);
 
-export const signInFirebase = async (org_id) => {
+export const signInFirebase = async () => {
     console.log({
         method: "signInFirebase",
         message: "entering",
     })
 
     // firebaseエンドポイントにカスタムヘッダを付与してアクセストークンを取得
-    // const response = await fetch('/api/firebase');
-    // const data = await response.json();
-    // console.log({
-    //     method: "fetch '/api/firebase'",
-    //     result: data
-    // })
-    
-    const provider = new OAuthProvider("oidc.testnakagome");
-    provider.addScope('openid');
-    provider.setCustomParameters({
-        prompt: "consent",
-        login_hint: "org_id"
-    });
+    const response = await fetch('/api/firebase');
+    const data = await response.json();
     console.log({
-        provider: provider
+        method: "fetch '/api/firebase'",
+        result: data
     })
+    
+    // const provider = new OAuthProvider("oidc.testnakagome");
+    // provider.addScope('openid');
+    // provider.setCustomParameters({
+    //     prompt: "consent",
+    //     login_hint: "org_id"
+    // });
+    // console.log({
+    //     provider: provider
+    // })
 
     // signInWithRedirect(auth, provider);
     // getRedirectResult(auth)
@@ -65,28 +65,28 @@ export const signInFirebase = async (org_id) => {
     // });
 
     // 【sign in with Popup バージョン】
-    try{
-        const result = await signInWithPopup(auth, provider);
-        const credential = OAuthProvider.credentialFromResult(result);
-        const user = result.user;
-        const accessToken = credential.accessToken;
-        const idToken = credential.idToken;
-        console.log({
-            user: user,
-            credential: credential,
-            accessToken: accessToken,
-            idToken: idToken
-        })
-    }catch(error){
-        const errorCode = error.code;
-                const errorMessage = error.message;
-                const credential = OAuthProvider.credentialFromError(error);
-                console.log({
-                    errorCode: errorCode,
-                    errorMessage: errorMessage,
-                    credential: credential
-                })
-    }
+    // try{
+    //     const result = await signInWithPopup(auth, provider);
+    //     const credential = OAuthProvider.credentialFromResult(result);
+    //     const user = result.user;
+    //     const accessToken = credential.accessToken;
+    //     const idToken = credential.idToken;
+    //     console.log({
+    //         user: user,
+    //         credential: credential,
+    //         accessToken: accessToken,
+    //         idToken: idToken
+    //     })
+    // }catch(error){
+    //     const errorCode = error.code;
+    //             const errorMessage = error.message;
+    //             const credential = OAuthProvider.credentialFromError(error);
+    //             console.log({
+    //                 errorCode: errorCode,
+    //                 errorMessage: errorMessage,
+    //                 credential: credential
+    //             })
+    // }
 
     // // 【手動でログインフローを処理する】
     // const response = await fetch('/api/session');
@@ -119,25 +119,25 @@ export const signInFirebase = async (org_id) => {
     // }
     
 
-    // signInWithCustomToken(auth, data.firebaseToken)
-    //     .then((userCredential) => {
-    //         const user = userCredential.user;
-    //         console.log({
-    //             method: "signInWithCustomToken",
-    //             message: "Firebase Sign-in successful",
-    //             userCredential: userCredential,
-    //             idToken: userCredential["_tokenResponse"]["idToken"]
-    //         });
-    //     })
-    //     .catch((error) => {
-    //         const errorCode = error.code;
-    //         const errorMessage = error.message;
-    //         console.log({
-    //             method: "signInWithCustomToken",
-    //             message: "Firebase Sign-in failed",
-    //             error: `errorCode: ${errorCode} errorMessage: ${errorMessage}`
-    //         });
-    //     });
+    signInWithCustomToken(auth, data.firebaseToken)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log({
+                method: "signInWithCustomToken",
+                message: "Firebase Sign-in successful",
+                userCredential: userCredential,
+                idToken: userCredential["_tokenResponse"]["idToken"]
+            });
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log({
+                method: "signInWithCustomToken",
+                message: "Firebase Sign-in failed",
+                error: `errorCode: ${errorCode} errorMessage: ${errorMessage}`
+            });
+        });
 }
 
 export const signOutFirebase = () => {

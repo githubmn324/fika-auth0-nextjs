@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const { expressjwt: jwt } = require('express-jwt');
 const jwksRsa = require('jwks-rsa');
+const { auth, requiredScopes } = require('express-oauth2-jwt-bearer');
 
 const app = express();
 const port = process.env.API_PORT || 3001;
@@ -35,6 +36,13 @@ app.use(helmet());
 app.use(cors({ origin: baseUrl }));
 app.use(expressLogger);
 
+// POSTメソッド追加用
+// urlencodedとjsonは別々に初期化する
+app.use(express.json());
+app.use(express.urlencoded({
+  extended: true
+}));
+
 const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
     cache: true,
@@ -47,8 +55,14 @@ const checkJwt = jwt({
   algorithms: ['RS256']
 });
 
-// Get access token from Auth0 Machine To Machine App
-// app.post('/api/clientCredentials', checkJwt, async(req, res)=>{
+// Authorization middleware. When used, the Access Token must
+// exist and be verified against the Auth0 JSON Web Key Set.
+const checkJwtExternal = auth({
+  audience: 'https://fs-apigw-bff-nakagome-bi5axj14.uc.gateway.dev/',
+  issuerBaseURL: issuerBaseUrl,
+});
+
+// Get access token from fs-apigwBff-nakagome Machine To Machine App
 app.post('/api/clientCredentials', async(req, res)=>{
   console.log('Fetching access token from https://' + auth0Domain + '/oauth/token');
   const options = {
@@ -59,11 +73,40 @@ app.post('/api/clientCredentials', async(req, res)=>{
       'content-type': 'application/json'
     },
     body: {
-      audience: audience,
+      audience: 'https://fs-apigw-bff-nakagome-bi5axj14.uc.gateway.dev/',
       grant_type: 'client_credentials',
       client_id: 'P8gvIPnXw3aezmsPiYj3fChVJzx3ygkI',
       client_secret: 'XzCuiDUGd_wQq7EBl3Kd-F2Y13MRDCQau-zluXYV7ldfvpCqB1ucCZfVVDKXVkbc',
       // org_id: "org_jCMMHxNbM9CELjvp"
+    },
+    json: true
+  };
+  request(options, function(error, response, body){
+    if (error || response.statusCode < 200 || response.statusCode >= 300) {
+      logger.debug('Fetching access token failed: ' + error);
+      res.send(error)
+    }
+    console.log(body);
+    res.send(body);
+  });
+})
+
+// Get access token from API Exploerer Machine To Machine App
+// app.post('/api/clientCredentials', checkJwt, async(req, res)=>{
+app.post('/api/clientCredentials/apiExplorer', async(req, res)=>{
+  console.log('Fetching access token from https://' + auth0Domain + '/oauth/token');
+  const options = {
+    method: 'POST',
+    url: 'https://' + auth0Domain + '/oauth/token',
+    headers: {
+      'cache-control': 'no-cache',
+      'content-type': 'application/json'
+    },
+    body: {
+      audience: "https://dev-kjqwuq76z8suldgw.us.auth0.com/api/v2/",
+      grant_type: 'client_credentials',
+      client_id: 'yPbT2eFB3oibed5CYHrsJWqUD5Jpz5iS',
+      client_secret: '3M5prWIOMmuo1v4JtET4PngaYJqYkOZx-4OId8jbDRxrneBYhOPlISdZZer9LmfB',
     },
     json: true
   };
@@ -90,53 +133,6 @@ firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(serviceAccount),
   databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`
 });
-
-// auth0
-app.post('/api/auth0/createOrg', async(req, res)=>{
-  // logger.debug({
-  //   message: "create Org entering",
-  //   req: req
-  // })
-  console.log({
-    message: "create Org entering",
-    req: req
-  });
-  const response = await fetch(`${issuerBaseUrl}/api/v2/orgnizations`, {
-      body: req.data,
-      headers: {
-        'Content-Type': 'application/json',    
-      },
-      method: req.method,
-  })
-  console.log({
-    message: "create Org exiting",
-    response: response
-  });
-  res.send({response})
-})
-
-app.post('/api/auth0/addMember', async(req, res)=>{
-  console.log({
-    message: "add member to the org entering",
-    req: req
-  });
-  const id = req.orgId;
-  const data = {
-    members: [req.user]
-  }   
-  const response = await fetch(`${issuerBaseUrl}/api/v2/organizations/${id}/members`, {
-    body: JSON.stringify(data),
-    headers: {
-        'Content-Type': 'application/json',    
-    },
-    method: 'POST',
-  })
-  res.json({response})
-  console.log({
-    message: "add member to the org exiting",
-    response: response
-  });
-})
 
 // firebase
 app.get('/api/firebase', checkJwt, async (req, res) => {
@@ -182,8 +178,10 @@ app.get("/api/external/workflow", checkJwt, (req, res) => {
 
 app.get("/api/external/api2", (req, res) => {
 // app.get("/api/external/api2", checkJwt, (req, res) => {
+  console.log("apiserver api2 called")
   request.get({
-      uri: `${audience}/bff/api2`,
+      uri: `https://fs-apigw-bff-nakagome-bi5axj14.uc.gateway.dev/bff/api2`,
+      // uri: `${audience}bff/api2`,
       headers: {'Authorization': req.get('Authorization')},
       qs: {
         // GETのURLの後に付く?hoge=hugaの部分
@@ -197,5 +195,23 @@ app.get("/api/external/api2", (req, res) => {
   });
 });
 
+
+app.get("/api/external/api2-v2", checkJwtExternal, (req, res) => {
+  console.log("apiserver api2 called")
+  request.get({
+      uri: `https://fs-apigw-bff-nakagome-bi5axj14.uc.gateway.dev/bff/api2`,
+      // uri: `${audience}bff/api2`,
+      headers: {'Authorization': req.get('Authorization')},
+      qs: {
+        // GETのURLの後に付く?hoge=hugaの部分
+      },
+      json: true
+  }, function(err, req, data){
+      console.log(err)
+      res.send({
+        data
+      });
+  });
+});
 const server = app.listen(port, () => console.log(`API Server listening on port ${port}`));
 process.on('SIGINT', () => server.close());
